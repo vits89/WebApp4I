@@ -1,0 +1,45 @@
+﻿.image-list {
+    @breakpoint: 576px;
+
+    margin: 0;
+    padding: 0;
+
+    &__item {
+        @spacer: 0.5rem;
+
+        list-style-type: none;
+        margin-bottom: @spacer;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        @media (min-width: @breakpoint) {
+            display: inline-block;
+            margin-bottom: 0;
+            margin-right: @spacer;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+    &__image {
+        max-width: 400px;
+
+        &:hover {
+            cursor: pointer;
+        }
+
+        @media (min-width: @breakpoint) {
+            max-height: 225px;
+            max-width: initial;
+            width: auto;
+        }
+    }
+
+    @media (min-width: @breakpoint) {
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

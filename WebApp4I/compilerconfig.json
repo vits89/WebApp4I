@@ -1,0 +1,12 @@
+[
+  {
+    "inputFile": "Content/less/main.less",
+    "outputFile": "Content/site.css",
+    "minify": {
+      "enabled": true
+    },
+    "options": {
+      "sourceMap": true
+    }
+  }
+]
