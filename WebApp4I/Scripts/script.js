@@ -1,4 +1,4 @@
-﻿const apiUrl = "/api/images",
+const apiUrl = "/api/images",
     metadataFirstItemsNumber = 6;
 
 const vm = new Vue({
@@ -11,8 +11,11 @@ const vm = new Vue({
         map: null
     },
     computed: {
+        hasMetadata() {
+            return this.imageInfo && Object.keys(this.imageInfo.Metadata).length > 0;
+        },
         coordinatesAvailable() {
-            return this.imageInfo && this.imageInfo.Metadata && this.imageInfo.Metadata["GPS Latitude"] &&
+            return this.hasMetadata && this.imageInfo.Metadata["GPS Latitude"] &&
                 this.imageInfo.Metadata["GPS Longitude"] || false;
         },
         metadataFirstItems() {
@@ -20,6 +23,9 @@ const vm = new Vue({
         },
         metadataRestItems() {
             return this.getMetadata(metadataFirstItemsNumber);
+        },
+        hasMetadataRestItems() {
+            return Object.keys(this.metadataRestItems).length > 0;
         },
         replacementText() {
             return this.getReplacementText(this.imageInfo ? this.imageInfo.Description : null);
@@ -33,17 +39,17 @@ const vm = new Vue({
             return deg + min / 60 + sec / 3600;
         },
         getMetadata(from, to) {
-            if (!this.imageInfo.Metadata) {
-                return null;
+            const metadata = { };
+
+            if (!this.imageInfo) {
+                return metadata;
             }
 
             const propNames = Object.keys(this.imageInfo.Metadata).slice(from, to);
 
             if (propNames.length === 0) {
-                return null;
+                return metadata;
             }
-
-            const metadata = { };
 
             propNames.forEach(propName => metadata[propName] = this.imageInfo.Metadata[propName]);
 

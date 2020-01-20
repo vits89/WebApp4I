@@ -29,7 +29,7 @@
                 </a>
             </div>
             <div class="col-12 col-md-4 col-lg-3" v-if="imageInfo">
-                <table class="table table-sm table-borderless" v-if="imageInfo.Metadata">
+                <table class="table table-sm table-borderless" v-if="hasMetadata">
                     <caption class="table__caption font-weight-bold py-0">Image Info</caption>
                     <tbody>
                         <tr v-for="(value, name) in metadataFirstItems" v-bind:key="name">
@@ -37,13 +37,13 @@
                             <td>{{ value }}</td>
                         <tr>
                     </tbody>
-                    <tbody id="metadata-rest-items" class="collapse" v-if="metadataRestItems">
+                    <tbody id="metadata-rest-items" class="collapse" v-if="hasMetadataRestItems">
                         <tr v-for="(value, name) in metadataRestItems" v-bind:key="name">
                             <td class="text-right">{{ name }}</td>
                             <td>{{ value }}</td>
                         <tr>
                     </tbody>
-                    <tfoot v-if="metadataRestItems">
+                    <tfoot v-if="hasMetadataRestItems">
                         <tr>
                             <td class="text-center" colspan="2">
                                 <a href="#metadata-rest-items" data-toggle="collapse" aria-expanded="false" aria-controls="metadata-rest-items">...</a>

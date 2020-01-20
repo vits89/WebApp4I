@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MetadataExtractor;
@@ -17,7 +17,7 @@ namespace WebApp4I.Infrastructure
 
         public IDictionary<string, string> Read(string fileName)
         {
-            Dictionary<string, string> metadata = null;
+            Dictionary<string, string> metadata;
 
             using (var stream = GetFileStream(fileName, FileMode.Open))
             {
@@ -28,10 +28,7 @@ namespace WebApp4I.Infrastructure
                     .SelectMany(d => d.Tags)
                     .Where(t => !string.IsNullOrWhiteSpace(t.Description));
 
-                if (tags.Any())
-                {
-                    metadata = tags.ToDictionary(t => t.Name, t => t.Description);
-                }
+                metadata = tags.ToDictionary(t => t.Name, t => t.Description);
             }
 
             return metadata;
