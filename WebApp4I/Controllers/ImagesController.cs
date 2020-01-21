@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -68,13 +68,11 @@ namespace WebApp4I.Controllers
 
             if (imageInfo != null)
             {
-                var metadata = _imageMetadataFileReader.Read(imageInfo.FileName);
+                var viewModel = _mapper.Map<ImageInfoViewModel>(imageInfo);
 
-                return Ok(_mapper.Map<ImageInfoViewModel>(imageInfo, opts =>
-                {
-                    opts.Items["metadata"] = metadata;
-                    opts.Items["path"] = _appSettings.PathToImages;
-                }));
+                viewModel.Metadata = _imageMetadataFileReader.Read(imageInfo.FileName);
+
+                return Ok(viewModel);
             }
 
             return NotFound();
@@ -82,8 +80,7 @@ namespace WebApp4I.Controllers
 
         public async Task<IEnumerable<ImageInfoViewModel>> GetAll()
         {
-            return _mapper.Map<IEnumerable<ImageInfoViewModel>>(await _imageInfoRepository.GetAllAsync(),
-                opts => opts.Items["path"] = _appSettings.PathToImages);
+            return _mapper.Map<IEnumerable<ImageInfoViewModel>>(await _imageInfoRepository.GetAllAsync());
         }
 
         [HttpPut]

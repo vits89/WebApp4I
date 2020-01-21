@@ -299,11 +299,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\MultipartContentAttribute.cs" />
+    <Compile Include="Infrastructure\PathValueResolver.cs" />
     <Compile Include="Models\AppSettings.cs" />
     <Compile Include="Infrastructure\AppSettingsProvider.cs" />
     <Compile Include="Infrastructure\IImageMetadataFileReader.cs" />
     <Compile Include="Infrastructure\IImageFileProcessor.cs" />
-    <Compile Include="Infrastructure\ImageInfoViewModelTypeConverter.cs" />
     <Compile Include="Infrastructure\ImageMetadataFileReader.cs" />
     <Compile Include="Infrastructure\ImageFileProcessorProvider.cs" />
     <Compile Include="Infrastructure\ImageMetadataFileReaderProvider.cs" />

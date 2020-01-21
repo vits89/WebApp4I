@@ -68,7 +68,8 @@ namespace WebApp4I
             kernel.Bind<IImageInfoRepository>().To<ImageInfoRepository>().InRequestScope();
             kernel.Bind<IImageFileProcessor>().ToProvider<ImageFileProcessorProvider>().InSingletonScope();
             kernel.Bind<IImageMetadataFileReader>().ToProvider<ImageMetadataFileReaderProvider>().InSingletonScope();
-            kernel.Bind<IMapper>().ToMethod(c => AutoMapperConfig.Configuration.CreateMapper()).InSingletonScope();
+            kernel.Bind<IMapper>().ToMethod(c => AutoMapperConfig.Configuration.CreateMapper(t => c.Kernel.Get(t)))
+                .InSingletonScope();
         }
     }
 }
