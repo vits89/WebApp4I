@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,9 +27,9 @@ namespace WebApp4I.Models
             return await _dbContext.ImageInfo.FindAsync(id);
         }
 
-        public IEnumerable<ImageInfo> GetAll()
+        public Task<IEnumerable<ImageInfo>> GetAllAsync()
         {
-            return _dbContext.ImageInfo.AsEnumerable();
+            return Task.FromResult(_dbContext.ImageInfo.AsEnumerable());
         }
 
         public async Task<bool> UpdateAsync(ImageInfo imageInfo)

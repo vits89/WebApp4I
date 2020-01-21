@@ -80,9 +80,9 @@ namespace WebApp4I.Controllers
             return NotFound();
         }
 
-        public IEnumerable<ImageInfoViewModel> GetAll()
+        public async Task<IEnumerable<ImageInfoViewModel>> GetAll()
         {
-            return _mapper.Map<IEnumerable<ImageInfoViewModel>>(_imageInfoRepository.GetAll(),
+            return _mapper.Map<IEnumerable<ImageInfoViewModel>>(await _imageInfoRepository.GetAllAsync(),
                 opts => opts.Items["path"] = _appSettings.PathToImages);
         }
 
