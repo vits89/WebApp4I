@@ -88,16 +88,20 @@ namespace WebApp4I.Controllers
 
         [HttpPut]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Update(ImageInfo imageInfo)
+        public async Task<IHttpActionResult> Update(int id, UpdateImageInfoViewModel viewModel)
         {
-            var updated = await _imageInfoRepository.UpdateAsync(imageInfo);
+            var imageInfo = await _imageInfoRepository.GetAsync(id);
 
-            if (updated)
+            if (imageInfo != null)
             {
+                imageInfo.Description = viewModel.Description;
+
+                await _imageInfoRepository.UpdateAsync(imageInfo);
+
                 return Ok();
             }
 
-            return BadRequest();
+            return NotFound();
         }
     }
 }

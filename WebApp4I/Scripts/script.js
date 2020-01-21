@@ -1,4 +1,4 @@
-const apiUrl = "/api/images",
+﻿const apiUrl = "/api/images",
     metadataFirstItemsNumber = 6;
 
 const vm = new Vue({
@@ -104,13 +104,10 @@ const vm = new Vue({
                 return;
             }
 
-            fetch(apiUrl, {
+            fetch(`${apiUrl}/${this.imageInfo.Id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    id: this.imageInfo.Id,
-                    description: this.imageInfo.Description
-                })
+                body: JSON.stringify({ description: this.imageInfo.Description })
             }).then(response => {
                 if (response.ok) {
                     this.editMode = false;

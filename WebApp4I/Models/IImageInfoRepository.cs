@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace WebApp4I.Models
@@ -9,6 +9,6 @@ namespace WebApp4I.Models
         Task AddAsync(IEnumerable<ImageInfo> imageInfo);
         Task<ImageInfo> GetAsync(int id);
         Task<IEnumerable<ImageInfo>> GetAllAsync();
-        Task<bool> UpdateAsync(ImageInfo imageInfo);
+        Task UpdateAsync(ImageInfo imageInfo);
     }
 }
