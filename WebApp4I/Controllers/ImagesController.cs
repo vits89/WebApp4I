@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -30,14 +30,10 @@ namespace WebApp4I.Controllers
         }
 
         [HttpPost]
+        [MultipartContent]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Save()
         {
-            if (!Request.Content.IsMimeMultipartContent())
-            {
-                return BadRequest();
-            }
-
             var streamProvider = new MultipartMemoryStreamProvider();
 
             await Request.Content.ReadAsMultipartAsync(streamProvider);
