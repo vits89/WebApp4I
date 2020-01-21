@@ -78,9 +78,9 @@ namespace WebApp4I.Controllers
             return NotFound();
         }
 
-        public async Task<IEnumerable<ImageInfoViewModel>> GetAll()
+        public async Task<IEnumerable<ImageThumbnailInfoViewModel>> GetAll()
         {
-            return _mapper.Map<IEnumerable<ImageInfoViewModel>>(await _imageInfoRepository.GetAllAsync());
+            return _mapper.Map<IEnumerable<ImageThumbnailInfoViewModel>>(await _imageInfoRepository.GetAllAsync());
         }
 
         [HttpPut]

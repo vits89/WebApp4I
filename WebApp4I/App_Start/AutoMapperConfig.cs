@@ -14,7 +14,8 @@ namespace WebApp4I
             Configuration = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<ImageInfo, ImageInfoViewModel>()
-                    .ForMember(dest => dest.Path, opt => opt.MapFrom<PathValueResolver, string>(src => src.FileName))
+                    .ForMember(dest => dest.Path, opt => opt.MapFrom<PathValueResolver, string>(src => src.FileName));
+                cfg.CreateMap<ImageInfo, ImageThumbnailInfoViewModel>()
                     .ForMember(dest => dest.PathToThumbnail, opt => opt.MapFrom<PathValueResolver, string>(src =>
                         src.ThumbnailFileName));
             });
