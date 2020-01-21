@@ -28,7 +28,7 @@ namespace WebApp4I.Infrastructure
             return newFileName;
         }
 
-        public async Task<string> CreateThumbnailAsync(byte[] content, string fileName)
+        public Task<string> CreateThumbnailAsync(byte[] content, string fileName)
         {
             var frameInfo = ImageFileInfo.Load(content).Frames.First();
 
@@ -47,7 +47,7 @@ namespace WebApp4I.Infrastructure
                 MagicImageProcessor.ProcessImage(content, stream, settings);
             }
 
-            return await Task.FromResult(newFileName);
+            return Task.FromResult(newFileName);
         }
 
         protected virtual Stream GetFileStream(string fileName, FileMode mode)
@@ -57,7 +57,7 @@ namespace WebApp4I.Infrastructure
 
         protected virtual string GetThumbnailFileName(string fileName)
         {
-            return Path.GetFileNameWithoutExtension(fileName) + "_thumbnail" + Path.GetExtension(fileName);
+            return string.Concat(Path.GetFileNameWithoutExtension(fileName), "_thumbnail", Path.GetExtension(fileName));
         }
 
         protected virtual string GetUniqueFileName(string fileName)
@@ -67,11 +67,8 @@ namespace WebApp4I.Infrastructure
                 return fileName.Substring(0);
             }
 
-            var newFileName = Path.GetFileNameWithoutExtension(fileName);
-
-            newFileName += "_" + Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
-
-            return newFileName + Path.GetExtension(fileName);
+            return string.Concat(Path.GetFileNameWithoutExtension(fileName), "_",
+                Path.GetFileNameWithoutExtension(Path.GetRandomFileName()), Path.GetExtension(fileName));
         }
     }
 }

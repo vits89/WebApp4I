@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MetadataExtractor;
@@ -22,8 +22,7 @@ namespace WebApp4I.Infrastructure
             using (var stream = GetFileStream(fileName, FileMode.Open))
             {
                 var tags = ImageMetadataReader.ReadMetadata(stream)
-                    .Where(d =>
-                        d is ExifIfd0Directory || d is ExifSubIfdDirectory || d is ExifImageDirectory ||
+                    .Where(d => d is ExifIfd0Directory || d is ExifSubIfdDirectory || d is ExifImageDirectory ||
                         d is GpsDirectory)
                     .SelectMany(d => d.Tags)
                     .Where(t => !string.IsNullOrWhiteSpace(t.Description));
