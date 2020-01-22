@@ -300,6 +300,10 @@
     </Compile>
     <Compile Include="Infrastructure\MultipartContentAttribute.cs" />
     <Compile Include="Infrastructure\PathValueResolver.cs" />
+    <Compile Include="Migrations\202001220913022_AddDataAnnotations.cs" />
+    <Compile Include="Migrations\202001220913022_AddDataAnnotations.designer.cs">
+      <DependentUpon>202001220913022_AddDataAnnotations.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AppSettings.cs" />
     <Compile Include="Infrastructure\AppSettingsProvider.cs" />
     <Compile Include="Infrastructure\IImageMetadataFileReader.cs" />
@@ -359,6 +363,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201910170726544_Initial.resx">
       <DependentUpon>201910170726544_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202001220913022_AddDataAnnotations.resx">
+      <DependentUpon>202001220913022_AddDataAnnotations.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
