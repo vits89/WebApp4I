@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,16 +13,14 @@ namespace WebApp4I.Controllers
 {
     public class ImagesController : ApiController
     {
-        private readonly AppSettings _appSettings;
         private readonly IImageInfoRepository _imageInfoRepository;
         private readonly IImageFileProcessor _imageFileProcessor;
         private readonly IImageMetadataFileReader _imageMetadataFileReader;
         private readonly IMapper _mapper;
 
-        public ImagesController(AppSettings appSettings, IImageInfoRepository imageInfoRepository,
-            IImageFileProcessor imageFileProcessor, IImageMetadataFileReader imageMetadataFileReader, IMapper mapper)
+        public ImagesController(IImageInfoRepository imageInfoRepository, IImageFileProcessor imageFileProcessor,
+            IImageMetadataFileReader imageMetadataFileReader, IMapper mapper)
         {
-            _appSettings = appSettings;
             _imageInfoRepository = imageInfoRepository;
             _imageFileProcessor = imageFileProcessor;
             _imageMetadataFileReader = imageMetadataFileReader;
