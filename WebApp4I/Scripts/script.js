@@ -118,6 +118,7 @@ const vm = new Vue({
             fetch(`${apiUrl}/${imageInfoId}`)
                 .then(response => response.json())
                 .then(data => {
+                    this.editMode = false;
                     this.imageInfo = data;
 
                     if (this.coordinatesAvailable) {
