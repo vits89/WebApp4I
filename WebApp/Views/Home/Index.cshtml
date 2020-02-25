@@ -1,0 +1,87 @@
+﻿@inherits WebApp4I.WebApp.Infrastructure.InjectedViewPage
+@{
+    ViewBag.Title = "Images";
+}
+
+@section Foot
+{
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/vueModel.js"></script>
+
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=@AppSettings.MapApiKey&lang=en_US"></script>
+}
+
+<div id="app" class="d-flex flex-column h-100">
+    <ul class="image-list flex-shrink-0 m-3">
+        <li class="image-list__item" v-for="imageInfo in imageInfoList" v-bind:key="imageInfo.Id">
+            <img class="image-list__image img-thumbnail" v-bind:src="imageInfo.PathToThumbnail"
+                 v-bind:alt="getReplacementText(imageInfo.Description)"
+                 v-on:click="handleThumbnailClick(imageInfo.Id)" />
+        </li>
+    </ul>
+    <div class="container-fluid" v-bind:class="{ 'd-none': !imageInfo }">
+        <div class="row">
+            <div class="col-12 col-md-8 mb-3 w-auto" style="flex-basis: auto;"
+                 v-bind:class="coordinatesAvailable ? 'col-lg-5' : 'col-lg-9'"
+                 v-if="imageInfo">
+                <a v-bind:href="imageInfo.Path" target="_blank">
+                    <img class="img-fluid" v-bind:src="imageInfo.Path" v-bind:alt="replacementText" />
+                </a>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3" v-if="imageInfo">
+                <table class="table table-sm table-borderless" v-if="hasMetadata">
+                    <caption class="table__caption font-weight-bold py-0">Image Info</caption>
+                    <tbody>
+                        <tr v-for="(value, name) in metadataFirstItems" v-bind:key="name">
+                            <td class="text-right">{{ name }}</td>
+                            <td>{{ value }}</td>
+                        <tr>
+                    </tbody>
+                    <tbody id="metadata-rest-items" class="collapse" v-if="hasMetadataRestItems">
+                        <tr v-for="(value, name) in metadataRestItems" v-bind:key="name">
+                            <td class="text-right">{{ name }}</td>
+                            <td>{{ value }}</td>
+                        <tr>
+                    </tbody>
+                    <tfoot v-if="hasMetadataRestItems">
+                        <tr>
+                            <td class="text-center" colspan="2">
+                                <a href="#metadata-rest-items" data-toggle="collapse" aria-expanded="false" aria-controls="metadata-rest-items">...</a>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <p v-else>No EXIF data provided</p>
+            </div>
+            <div id="map" class="map col-12 col-md-12 col-lg-4 flex-grow-1 mw-100 mb-3"
+                 v-bind:class="{ 'd-none': !coordinatesAvailable }"></div>
+        </div>
+        <div class="row" v-if="imageInfo">
+            <div class="form-group col-12 col-md-9 col-lg-7 col-xl-5">
+                <label for="image-description-editor">
+                    User Image Description: <a href="#" v-on:click="handleEditSaveActionClick">({{ editMode ? "save" : "edit" }})</a>
+                </label>
+                <textarea id="image-description-editor" v-model="imageInfo.Description"
+                          v-bind:class="editMode ? 'form-control' : 'form-control-plaintext'"
+                          v-bind:readonly="!editMode ? 'readonly' : false"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid mt-auto">
+        <div class="row">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+                <div class="form-inline">
+                    <div class="custom-file w-auto flex-grow-1 mb-3 mr-1 mr-sm-3">
+                        <input id="file-input" class="custom-file-input" type="file" multiple />
+                        <label class="custom-file-label justify-content-start overflow-hidden" for="file-input">
+                            Browse for files
+                        </label>
+                    </div>
+                    <button class="btn btn-outline-secondary mb-3" type="button" v-on:click="handleUploadActionClick">
+                        Upload and preview
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

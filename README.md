@@ -4,7 +4,7 @@
 
 Перед запуском приложения нужно:
 - Внести API-ключ Яндекс.Карт в файл *Web.config* в качестве значения атрибута *value* элемента *add* с *key* *MapApiKey* (элемент *configuration*, далее *appSettings*)
-- Создать и заполнить базу данных (используется Microsoft SQL Server (LocalDB)), запустив из консоли диспетчера пакетов `Update-Database`
+- Создать и заполнить базу данных (используется Microsoft SQL Server (LocalDB)), запустив из консоли диспетчера пакетов `Update-Database -ProjectName Infrastructure`
 
 ---
 
