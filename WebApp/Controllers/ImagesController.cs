@@ -86,6 +86,11 @@ namespace WebApp4I.WebApp.Controllers
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Update(int id, UpdateImageInfoViewModel viewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var imageInfo = await _imageInfoRepository.GetAsync(id);
 
             if (imageInfo != null)

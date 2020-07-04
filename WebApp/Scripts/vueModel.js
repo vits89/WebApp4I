@@ -3,6 +3,10 @@
 
 const vm = new Vue({
     el: "#app",
+    components: {
+        ValidationObserver: VeeValidate.ValidationObserver,
+        ValidationProvider: VeeValidate.ValidationProvider
+    },
     data: {
         editMode: false,
         fileInput: null,
@@ -37,6 +41,17 @@ const vm = new Vue({
                 .map(value => parseFloat(value.replace(/[^\d.]/g, "")));
 
             return deg + min / 60 + sec / 3600;
+        },
+        getErrors(modelState) {
+            const errors = { };
+
+            Object.keys(modelState).forEach(prop => {
+                const propParts = prop.split(".");
+
+                errors[propParts[1] || propParts[0]] = modelState[prop];
+            });
+
+            return errors;
         },
         getMetadata(from, to) {
             const metadata = { };
@@ -95,22 +110,21 @@ const vm = new Vue({
                 .then(data => this.imageInfoList = data);
         },
 
-        handleEditSaveActionClick(event) {
-            event.preventDefault();
-
-            if (!this.editMode) {
-                this.editMode = true;
-
-                return;
-            }
-
+        handleEditActionClick() {
+            this.editMode = true;
+        },
+        handleSaveActionClick() {
             fetch(`${apiUrl}/${this.imageInfo.Id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ description: this.imageInfo.Description })
-            }).then(response => {
+            }).then(async response => {
                 if (response.ok) {
                     this.editMode = false;
+                } else {
+                    const data = await response.json();
+
+                    this.$refs.form.setErrors(this.getErrors(data.ModelState));
                 }
             });
         },

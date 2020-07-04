@@ -6,6 +6,7 @@
 @section Foot
 {
     <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/vee-validate.full.min.js"></script>
     <script src="~/Scripts/vueModel.js"></script>
 
     <script src="https://api-maps.yandex.ru/2.1/?apikey=@AppSettings.MapApiKey&lang=en_US"></script>
@@ -57,14 +58,19 @@
                  v-bind:class="{ 'd-none': !coordinatesAvailable }"></div>
         </div>
         <div class="row" v-if="imageInfo">
-            <div class="form-group col-12 col-md-9 col-lg-7 col-xl-5">
-                <label for="image-description-editor">
-                    User Image Description: <a href="#" v-on:click="handleEditSaveActionClick">({{ editMode ? "save" : "edit" }})</a>
-                </label>
-                <textarea id="image-description-editor" v-model="imageInfo.Description"
-                          v-bind:class="editMode ? 'form-control' : 'form-control-plaintext'"
-                          v-bind:readonly="!editMode ? 'readonly' : false"></textarea>
-            </div>
+            <validation-observer ref="form" slim v-slot="{ handleSubmit }">
+                <validation-provider tag="div" class="form-group col-12 col-md-9 col-lg-7 col-xl-5" vid="Description"
+                                     rules="max:200"
+                                     v-slot="{ errors, invalid, touched }">
+                    <label for="image-description-editor">
+                        User Image Description: <a href="#" v-if="!editMode" v-on:click.prevent="handleEditActionClick">(edit)</a><a href="#" v-if="editMode" v-on:click.prevent="handleSubmit(handleSaveActionClick)">(save)</a>
+                    </label>
+                    <textarea id="image-description-editor" name="Description" v-model="imageInfo.Description"
+                              v-bind:class="[editMode ? 'form-control' : 'form-control-plaintext', { 'is-invalid': invalid && touched }]"
+                              v-bind:readonly="!editMode ? 'readonly' : false"></textarea>
+                    <span class="invalid-feedback" v-if="invalid && touched">{{ errors[0] }}</span>
+                </validation-provider>
+            </validation-observer>
         </div>
     </div>
     <div class="container-fluid mt-auto">
