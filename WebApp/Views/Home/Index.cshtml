@@ -4,7 +4,7 @@
 }
 @section Foot
 {
-    <script src="~/Scripts/vueModel.js"></script>
+    @Scripts.Render("~/bundles/vm")
     <script src="https://api-maps.yandex.ru/2.1/?apikey=@AppSettings.MapApiKey&lang=en_US"></script>
 }
 

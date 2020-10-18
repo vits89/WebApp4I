@@ -1,59 +1,59 @@
-﻿const apiUrl = "/api/images",
+﻿const apiUrl = '/api/images',
     metadataFirstItemsNumber = 6;
 
 const vm = new Vue({
-    el: "#app",
+    el: '#app',
     components: {
         ValidationObserver: VeeValidate.ValidationObserver,
-        ValidationProvider: VeeValidate.ValidationProvider
+        ValidationProvider: VeeValidate.ValidationProvider,
     },
     data: {
         editMode: false,
         fileInput: null,
         imageInfo: null,
         imageInfoList: [],
-        map: null
+        map: null,
     },
     computed: {
-        hasMetadata() {
+        hasMetadata: function () {
             return this.imageInfo && Object.keys(this.imageInfo.Metadata).length > 0;
         },
-        coordinatesAvailable() {
-            return this.hasMetadata && this.imageInfo.Metadata["GPS Latitude"] &&
-                this.imageInfo.Metadata["GPS Longitude"] || false;
+        coordinatesAvailable: function () {
+            return this.hasMetadata && this.imageInfo.Metadata['GPS Latitude'] &&
+                this.imageInfo.Metadata['GPS Longitude'] || false;
         },
-        metadataFirstItems() {
+        metadataFirstItems: function () {
             return this.getMetadata(0, metadataFirstItemsNumber);
         },
-        metadataRestItems() {
+        metadataRestItems: function () {
             return this.getMetadata(metadataFirstItemsNumber);
         },
-        hasMetadataRestItems() {
+        hasMetadataRestItems: function () {
             return Object.keys(this.metadataRestItems).length > 0;
         },
-        replacementText() {
+        replacementText: function () {
             return this.getReplacementText(this.imageInfo ? this.imageInfo.Description : null);
-        }
+        },
     },
     methods: {
-        convertCoordinate(coordinate) {
-            const [deg, min, sec] = coordinate.replace(",", ".").split(" ")
-                .map(value => parseFloat(value.replace(/[^\d.]/g, "")));
+        convertCoordinate: function (coordinate) {
+            const [deg, min, sec] = coordinate.replace(',', '.').split(' ')
+                .map(value => parseFloat(value.replace(/[^\d.]/g, '')));
 
             return deg + min / 60 + sec / 3600;
         },
-        getErrors(modelState) {
+        getErrors: function (modelState) {
             const errors = { };
 
-            Object.keys(modelState).forEach(prop => {
-                const propParts = prop.split(".");
+            Object.keys(modelState).forEach((prop) => {
+                const propParts = prop.split('.');
 
                 errors[propParts[1] || propParts[0]] = modelState[prop];
             });
 
             return errors;
         },
-        getMetadata(from, to) {
+        getMetadata: function (from, to) {
             const metadata = { };
 
             if (!this.imageInfo) {
@@ -62,39 +62,41 @@ const vm = new Vue({
 
             const propNames = Object.keys(this.imageInfo.Metadata).slice(from, to);
 
-            if (propNames.length === 0) {
+            if (!propNames.length) {
                 return metadata;
             }
 
-            propNames.forEach(propName => metadata[propName] = this.imageInfo.Metadata[propName]);
+            propNames.forEach((propName) => {
+                metadata[propName] = this.imageInfo.Metadata[propName];
+            });
 
             return metadata;
         },
-        getReplacementText(text) {
+        getReplacementText: function (text) {
             if (!text) {
-                return "No replacement text provided";
+                return 'No replacement text provided';
             }
 
             let replacementText = text.substr(0, 30);
 
             if (replacementText.length < text.length) {
-                replacementText += "...";
+                replacementText += '...';
             }
 
             return replacementText;
         },
-        showMap() {
+        showMap: function () {
             const coordinates = [
-                this.convertCoordinate(this.imageInfo.Metadata["GPS Latitude"]),
-                this.convertCoordinate(this.imageInfo.Metadata["GPS Longitude"])
+                this.convertCoordinate(this.imageInfo.Metadata['GPS Latitude']),
+                this.convertCoordinate(this.imageInfo.Metadata['GPS Longitude']),
             ];
 
             if (this.map) {
                 this.map.setCenter(coordinates, 10);
             } else {
-                this.map = new ymaps.Map("map", {
+                this.map = new ymaps.Map('map', {
                     center: coordinates,
-                    zoom: 10
+                    zoom: 10,
                 });
             }
 
@@ -104,34 +106,37 @@ const vm = new Vue({
             this.map.geoObjects.add(placemark);
         },
 
-        fetchThumbnails() {
+        fetchThumbnails: function () {
             fetch(apiUrl)
                 .then(response => response.json())
-                .then(data => this.imageInfoList = data);
+                .then((data) => {
+                    this.imageInfoList = data;
+                });
         },
 
-        handleEditActionClick() {
+        handleEditActionClick: function () {
             this.editMode = true;
         },
-        handleSaveActionClick() {
+        handleSaveActionClick: function () {
             fetch(`${apiUrl}/${this.imageInfo.Id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ description: this.imageInfo.Description })
-            }).then(async response => {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: this.imageInfo.Description }),
+            }).then((response) => {
                 if (response.ok) {
                     this.editMode = false;
                 } else {
-                    const data = await response.json();
-
-                    this.$refs.form.setErrors(this.getErrors(data.ModelState));
+                    response.json()
+                        .then((data) => {
+                            this.$refs.form.setErrors(this.getErrors(data.ModelState));
+                        });
                 }
             });
         },
-        handleThumbnailClick(imageInfoId) {
+        handleThumbnailClick: function (imageInfoId) {
             fetch(`${apiUrl}/${imageInfoId}`)
                 .then(response => response.json())
-                .then(data => {
+                .then((data) => {
                     this.editMode = false;
                     this.imageInfo = data;
 
@@ -140,21 +145,21 @@ const vm = new Vue({
                     }
                 });
         },
-        handleUploadActionClick() {
+        handleUploadActionClick: function () {
             const files = this.fileInput.files;
 
-            if (files.length === 0) return;
+            if (!files.length) return;
 
             const formData = new FormData();
 
             for (let i = 0; i < files.length; i++) {
-                formData.append("file" + (i + 1), files[i]);
+                formData.append('file' + (i + 1), files[i]);
             }
 
             fetch(apiUrl, {
-                method: "POST",
-                body: formData
-            }).then(response => {
+                method: 'POST',
+                body: formData,
+            }).then((response) => {
                 if (response.ok) {
                     this.fetchThumbnails();
                 }
@@ -162,14 +167,14 @@ const vm = new Vue({
         }
     },
 
-    mounted() {
-        this.fileInput = document.getElementById("file-input");
+    mounted: function () {
+        this.fileInput = document.getElementById('file-input');
 
         this.fetchThumbnails();
     },
-    beforeDestroy() {
+    beforeDestroy: function () {
         if (this.map) {
             this.map.destroy();
         }
-    }
+    },
 });
