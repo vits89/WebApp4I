@@ -1,15 +1,17 @@
 /**
-  * vee-validate v3.3.7
+  * vee-validate v3.4.2
   * (c) 2020 Abdelrahman Awad
   * @license MIT
   */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('vue')) :
   typeof define === 'function' && define.amd ? define(['exports', 'vue'], factory) :
-  (global = global || self, factory(global.VeeValidate = {}, global.Vue));
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.VeeValidate = {}, global.Vue));
 }(this, (function (exports, Vue) { 'use strict';
 
-  Vue = Vue && Object.prototype.hasOwnProperty.call(Vue, 'default') ? Vue['default'] : Vue;
+  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+  var Vue__default = /*#__PURE__*/_interopDefaultLegacy(Vue);
 
   var code = "en";
   var messages = {
@@ -37,7 +39,8 @@
   	regex: "The {_field_} field format is invalid",
   	required_if: "The {_field_} field is required",
   	required: "The {_field_} field is required",
-  	size: "The {_field_} field size must be less than {size}KB"
+  	size: "The {_field_} field size must be less than {size}KB",
+  	double: "The {_field_} field must be a valid decimal"
   };
   var en = {
   	code: code,
@@ -633,6 +636,9 @@
       if (isNullOrUndefined(value)) {
           return false;
       }
+      if (typeof value === 'string') {
+          value = toArray(value);
+      }
       if (typeof value === 'number') {
           value = String(value);
       }
@@ -895,6 +901,33 @@
       params: params$j
   };
 
+  var validate$r = function (value, _a) {
+      var _b = _a === void 0 ? {} : _a, _c = _b.decimals, decimals = _c === void 0 ? 0 : _c, _d = _b.separator, separator = _d === void 0 ? 'dot' : _d;
+      var separators = {
+          dot: '.',
+          comma: ','
+      };
+      var regexPart = +decimals === 0 ? '+' : "{" + decimals + "}";
+      var regex = new RegExp("^-?\\d+\\" + (separators[separator] || '.') + "\\d" + regexPart + "$");
+      return Array.isArray(value) ? value.every(function (val) { return regex.test(String(val)); }) : regex.test(String(value));
+  };
+  var params$k = [
+      {
+          name: 'decimals',
+          default: 0
+      },
+      {
+          name: 'separator',
+          default: 'dot'
+      }
+  ];
+  var double = {
+      validate: validate$r,
+      params: params$k
+  };
+
+  /* eslint-disable camelcase */
+
   var Rules = /*#__PURE__*/Object.freeze({
     __proto__: null,
     alpha_dash: alpha_dash,
@@ -923,7 +956,8 @@
     regex: regex,
     required: required,
     required_if: required_if,
-    size: size
+    size: size,
+    double: double
   });
 
   /*! *****************************************************************************
@@ -1022,7 +1056,7 @@
       setConfig(cfg);
   };
 
-  var EVENT_BUS = new Vue();
+  var EVENT_BUS = new Vue__default['default']();
   function localeChanged() {
       EVENT_BUS.$emit('change:locale');
   }
@@ -1151,7 +1185,7 @@
       on: ['input', 'blur']
   }); };
   var lazy = function () { return ({
-      on: ['change']
+      on: ['change', 'blur']
   }); };
   var eager = function (_a) {
       var errors = _a.errors;
@@ -1338,7 +1372,9 @@
   }
   function extractLocators(params) {
       if (Array.isArray(params)) {
-          return params.filter(isLocator);
+          return params.filter(function (param) {
+              return isLocator(param) || (typeof param === 'string' && param[0] === '@');
+          });
       }
       return Object.keys(params)
           .filter(function (key) { return isLocator(params[key]); })
@@ -1348,7 +1384,7 @@
   /**
    * Validates a value against the rules.
    */
-  function validate$r(value, rules, options) {
+  function validate$s(value, rules, options) {
       if (options === void 0) { options = {}; }
       return __awaiter(this, void 0, void 0, function () {
           var shouldBail, skipIfEmpty, field, result, errors, failedRules, regenerateMap;
@@ -1628,7 +1664,13 @@
   }
   function fillTargetValues(params, crossTable) {
       if (Array.isArray(params)) {
-          return params;
+          return params.map(function (param) {
+              var targetPart = typeof param === 'string' && param[0] === '@' ? param.slice(1) : param;
+              if (targetPart in crossTable) {
+                  return crossTable[targetPart];
+              }
+              return param;
+          });
       }
       var values = {};
       var normalize = function (value) {
@@ -1745,17 +1787,18 @@
       }
       return [];
   }
-  function findInputNode(vnode) {
+  function findInputNodes(vnode) {
       if (!Array.isArray(vnode) && findValue(vnode) !== undefined) {
-          return vnode;
+          return [vnode];
       }
       var children = extractChildren(vnode);
-      return children.reduce(function (candidate, node) {
-          if (candidate) {
-              return candidate;
+      return children.reduce(function (nodes, node) {
+          var candidates = findInputNodes(node);
+          if (candidates.length) {
+              nodes.push.apply(nodes, candidates);
           }
-          return findInputNode(node);
-      }, null);
+          return nodes;
+      }, []);
   }
   // Resolves v-model config if exists.
   function findModelConfig(vnode) {
@@ -2052,7 +2095,7 @@
       };
       return defaultValues;
   }
-  var ValidationProvider = Vue.extend({
+  var ValidationProvider = Vue__default['default'].extend({
       inject: {
           $_veeObserver: {
               from: '$_veeObserver',
@@ -2116,6 +2159,10 @@
               default: function () {
                   return {};
               }
+          },
+          detectInput: {
+              type: Boolean,
+              default: true
           }
       },
       watch: {
@@ -2131,7 +2178,9 @@
           fieldDeps: function () {
               var _this = this;
               return Object.keys(this.normalizedRules).reduce(function (acc, rule) {
-                  var deps = extractLocators(_this.normalizedRules[rule]).map(function (dep) { return dep.__locatorRef; });
+                  var deps = extractLocators(_this.normalizedRules[rule]).map(function (dep) {
+                      return isLocator(dep) ? dep.__locatorRef : dep.slice(1);
+                  });
                   acc.push.apply(acc, deps);
                   deps.forEach(function (depName) {
                       watchCrossFieldDep(_this, depName);
@@ -2189,24 +2238,32 @@
           });
       },
       render: function (h) {
-          var _a, _b, _c, _d;
+          var _this = this;
           this.registerField();
           var ctx = createValidationCtx(this);
           var children = normalizeChildren(this, ctx);
-          var input = findInputNode(children);
-          if (!input) {
-              // Silent exit if no input was found.
-              return this.slim && children.length <= 1 ? children[0] : h(this.tag, children);
+          // Automatic v-model detection
+          if (this.detectInput) {
+              var inputs = findInputNodes(children);
+              if (inputs.length) {
+                  inputs.forEach(function (input, idx) {
+                      var _a, _b, _c, _d, _e, _f;
+                      // If the elements are not checkboxes and there are more input nodes
+                      if (!includes(['checkbox', 'radio'], (_b = (_a = input.data) === null || _a === void 0 ? void 0 : _a.attrs) === null || _b === void 0 ? void 0 : _b.type) && idx > 0) {
+                          return;
+                      }
+                      var resolved = getConfig().useConstraintAttrs ? resolveRules(input) : {};
+                      if (!isEqual(_this._resolvedRules, resolved)) {
+                          _this._needsValidation = true;
+                      }
+                      if (isHTMLNode(input)) {
+                          _this.fieldName = ((_d = (_c = input.data) === null || _c === void 0 ? void 0 : _c.attrs) === null || _d === void 0 ? void 0 : _d.name) || ((_f = (_e = input.data) === null || _e === void 0 ? void 0 : _e.attrs) === null || _f === void 0 ? void 0 : _f.id);
+                      }
+                      _this._resolvedRules = resolved;
+                      addListeners(_this, input);
+                  });
+              }
           }
-          var resolved = getConfig().useConstraintAttrs ? resolveRules(input) : {};
-          if (!isEqual(this._resolvedRules, resolved)) {
-              this._needsValidation = true;
-          }
-          if (isHTMLNode(input)) {
-              this.fieldName = ((_b = (_a = input.data) === null || _a === void 0 ? void 0 : _a.attrs) === null || _b === void 0 ? void 0 : _b.name) || ((_d = (_c = input.data) === null || _c === void 0 ? void 0 : _c.attrs) === null || _d === void 0 ? void 0 : _d.id);
-          }
-          this._resolvedRules = resolved;
-          addListeners(this, input);
           return this.slim && children.length <= 1 ? children[0] : h(this.tag, children);
       },
       beforeDestroy: function () {
@@ -2274,7 +2331,7 @@
                                   enumerable: false,
                                   configurable: false
                               });
-                              return [4 /*yield*/, validate$r(this.value, rules, __assign(__assign({ name: this.name || this.fieldName }, createLookup(this)), { bails: this.bails, skipIfEmpty: this.skipIfEmpty, isInitial: !this.initialized, customMessages: this.customMessages }))];
+                              return [4 /*yield*/, validate$s(this.value, rules, __assign(__assign({ name: this.name || this.fieldName }, createLookup(this)), { bails: this.bails, skipIfEmpty: this.skipIfEmpty, isInitial: !this.initialized, customMessages: this.customMessages }))];
                           case 1:
                               result = _a.sent();
                               this.setFlags({
@@ -2449,7 +2506,7 @@
           $_veeObserver: this
       };
   }
-  var ValidationObserver = Vue.extend({
+  var ValidationObserver = Vue__default['default'].extend({
       name: 'ValidationObserver',
       provide: provideSelf,
       inject: {
@@ -2534,18 +2591,42 @@
                   this.observers.splice(idx, 1);
               }
           },
-          validate: function (_a) {
+          validateWithInfo: function (_a) {
               var _b = (_a === void 0 ? {} : _a).silent, silent = _b === void 0 ? false : _b;
               return __awaiter(this, void 0, void 0, function () {
-                  var results;
-                  return __generator(this, function (_c) {
-                      switch (_c.label) {
+                  var results, isValid, _c, errors, flags, fields;
+                  return __generator(this, function (_d) {
+                      switch (_d.label) {
                           case 0: return [4 /*yield*/, Promise.all(__spreadArrays(values(this.refs)
                                   .filter(function (r) { return !r.disabled; })
                                   .map(function (ref) { return ref[silent ? 'validateSilent' : 'validate']().then(function (r) { return r.valid; }); }), this.observers.filter(function (o) { return !o.disabled; }).map(function (obs) { return obs.validate({ silent: silent }); })))];
                           case 1:
-                              results = _c.sent();
-                              return [2 /*return*/, results.every(function (r) { return r; })];
+                              results = _d.sent();
+                              isValid = results.every(function (r) { return r; });
+                              _c = computeObserverState.call(this), errors = _c.errors, flags = _c.flags, fields = _c.fields;
+                              this.errors = errors;
+                              this.flags = flags;
+                              this.fields = fields;
+                              return [2 /*return*/, {
+                                      errors: errors,
+                                      flags: flags,
+                                      fields: fields,
+                                      isValid: isValid
+                                  }];
+                      }
+                  });
+              });
+          },
+          validate: function (_a) {
+              var _b = (_a === void 0 ? {} : _a).silent, silent = _b === void 0 ? false : _b;
+              return __awaiter(this, void 0, void 0, function () {
+                  var isValid;
+                  return __generator(this, function (_c) {
+                      switch (_c.label) {
+                          case 0: return [4 /*yield*/, this.validateWithInfo({ silent: silent })];
+                          case 1:
+                              isValid = (_c.sent()).isValid;
+                              return [2 /*return*/, isValid];
                       }
                   });
               });
@@ -2664,13 +2745,14 @@
           return h(options, {
               attrs: this.$attrs,
               props: props,
-              on: listeners
+              on: listeners,
+              scopedSlots: this.$scopedSlots
           }, normalizeSlots(this.$slots, this.$vnode.context));
       };
       return hoc;
   }
 
-  var version = '3.3.7';
+  var version = '3.4.2';
   // Install all rules.
   var RulesAsList = Object.keys(Rules).map(function (key) { return ({ schema: Rules[key], name: key }); });
   RulesAsList.forEach(function (_a) {
@@ -2689,7 +2771,7 @@
   exports.localize = localize;
   exports.normalizeRules = normalizeRules;
   exports.setInteractionMode = setInteractionMode;
-  exports.validate = validate$r;
+  exports.validate = validate$s;
   exports.version = version;
   exports.withValidation = withValidation;
 
