@@ -281,13 +281,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\AppSettingsProvider.cs" />
     <Compile Include="Infrastructure\MultipartContentAttribute.cs" />
     <Compile Include="Infrastructure\PathValueResolver.cs" />
-    <Compile Include="Models\AppSettings.cs" />
-    <Compile Include="Infrastructure\AppSettingsProvider.cs" />
+    <Compile Include="Infrastructure\PostedFilesModelBinder.cs" />
     <Compile Include="Infrastructure\ImageFileProcessorProvider.cs" />
     <Compile Include="Infrastructure\ImageMetadataFileReaderProvider.cs" />
     <Compile Include="Infrastructure\InjectedViewPage.cs" />
+    <Compile Include="Models\AppSettings.cs" />
+    <Compile Include="Models\PostedFileModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\ImageThumbnailInfoViewModel.cs" />
     <Compile Include="ViewModels\ImageInfoViewModel.cs" />

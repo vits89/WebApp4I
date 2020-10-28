@@ -1,13 +1,16 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
 using AutoMapper;
 using WebApp4I.AppCore.Entities;
 using WebApp4I.AppCore.Interfaces;
 using WebApp4I.WebApp.Infrastructure;
+using WebApp4I.WebApp.Models;
 using WebApp4I.WebApp.ViewModels;
 
 namespace WebApp4I.WebApp.Controllers
@@ -31,22 +34,16 @@ namespace WebApp4I.WebApp.Controllers
         [HttpPost]
         [MultipartContent]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Save()
+        public async Task<IHttpActionResult> Save([ModelBinder]IEnumerable<PostedFileModel> files)
         {
-            var streamProvider = new MultipartMemoryStreamProvider();
+            var imageInfo = new List<ImageInfo> { Capacity = files.Count() };
 
-            await Request.Content.ReadAsMultipartAsync(streamProvider);
-
-            var imageInfo = new List<ImageInfo> { Capacity = streamProvider.Contents.Count };
-
-            foreach (var content in streamProvider.Contents)
+            foreach (var file in files)
             {
-                var fileName = content.Headers.ContentDisposition.FileName.Trim('\"');
+                var fileContent = file.Content.ToArray();
 
-                var fileContent = await content.ReadAsByteArrayAsync();
-
-                var newFileName = await _imageFileProcessor.SaveAsync(fileContent, fileName);
-                var thumbnailFileName = await _imageFileProcessor.CreateThumbnailAsync(fileContent, fileName);
+                var newFileName = await _imageFileProcessor.SaveAsync(fileContent, file.Name);
+                var thumbnailFileName = await _imageFileProcessor.CreateThumbnailAsync(fileContent, file.Name);
 
                 imageInfo.Add(new ImageInfo
                 {
